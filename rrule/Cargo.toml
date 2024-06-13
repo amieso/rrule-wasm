@@ -21,17 +21,22 @@ regex = { version = "1.5.5", default-features = false, features = ["perf", "std"
 clap = { version = "4.1.9", optional = true, features = ["derive"] }
 thiserror = "1.0.30"
 serde_with = { version = "3.8.1", optional = true }
+wasm-bindgen = { version="0.2.92", optional = true }
+js-sys = { version="0.3.69", optional = true }
+wee_alloc = { version="0.4.1", optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
 
 [dev-dependencies]
 serde_json = "1.0.80"
 orig_serde = { package = "serde", version = "1.0.137", default-features = false, features = ["derive"]}
+wasm-bindgen-test = "0.3.42"
 
 [[bin]]
 name = "rrule"
 required-features = ["cli-tool"]
 
 [features]
-default = []
+default = ["wasm", "wee_alloc", "console_error_panic_hook"]
 
 # Allows the enabling of the `by_easter` field and `BYEASTER` parser.
 by-easter = []
@@ -44,3 +49,9 @@ serde = ["serde_with", "chrono/serde", "chrono-tz/serde"]
 
 # Allows EXRULE's to be used in the `RRuleSet`.
 exrule = []
+
+# Allows to use WASM
+wasm = ["dep:wasm-bindgen", "dep:js-sys"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]

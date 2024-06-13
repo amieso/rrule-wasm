@@ -93,12 +93,21 @@
 #![warn(missing_docs)]
 #![deny(rustdoc::broken_intra_doc_links)]
 
+extern crate wee_alloc;
+
+// When the `wee_alloc` feature is enabled, use `wee_alloc` as the global allocator.
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 mod core;
 mod error;
 mod iter;
 mod parser;
 mod tests;
 mod validator;
+#[cfg(feature = "wasm")]
+mod wasm;
 
 pub use crate::core::{Frequency, NWeekday, RRule, RRuleResult, RRuleSet, Tz};
 pub use crate::core::{Unvalidated, Validated};

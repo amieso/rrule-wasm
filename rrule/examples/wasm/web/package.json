@@ -1,0 +1,7 @@
+{
+  "name": "rrule-wasm",
+  "dependencies": {
+    "rrule": "latest",
+    "luxon": "latest"
+  }
+}

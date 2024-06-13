@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+  <meta http-equiv="cache-control" content="max-age=0" />
+  <meta http-equiv="cache-control" content="no-cache" />
+  <script type="module" src="./node_modules/rrule/dist/es5/rrule.js"></script>
+  <script type="module" src="./benchmarking.js"></script>
+</head>
+<body>
+<h1>rust-rrule x rrule</h1>
+
+<label for="ruleSet">RuleSet:</label>
+<textarea id="ruleSet" name="ruleSet" cols="150" rows="8">
+DTSTART;TZID=Europe/Moscow:20190813T153000
+RRULE:FREQ=DAILY
+RDATE;TZID=Europe/Moscow:20190813T153000
+</textarea>
+
+<br><br>
+
+<label for="after">After:</label>
+<input type="text" id="after" name="after" value="2019-06-05T21:00:00Z"><br><br>
+
+<label for="before">Before:</label>
+<input type="text" id="before" name="before" value="2022-06-22T20:59:59Z"><br><br>
+
+<label for="limit">Date Recurrences Limit:</label>
+<input type="text" id="limit" name="limit" value="730"><br><br>
+
+<button id="performanceButton">Calculate Performance</button>
+
+<br><br><br>
+<label>Result:</label>
+<div>WASM init time: <span id="wasmInitTime">...</span></div>
+<div id="rustRRuleResult">No rust-rrule results yet</div>
+<div id="rruleResult">No rrule results yet</div>
+<div>Match: <span id="matchErrors">...</span></div>
+</body>
+</html>
