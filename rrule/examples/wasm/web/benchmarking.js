@@ -3,7 +3,7 @@ import { tryParseEventRecurrenceRules, createValidDateTimeFromISO, getInstanceSt
 
 function executeRRulePerformanceTest(ruleSet, after, before, limit) {
   return executeWork(() => {
-    return (new rrule.rrulestr(ruleSet)).between(after, before);
+    return (new rrule.rrulestr(ruleSet)).between(after, before, true);
   }, "rrule");
 }
 function executeRustRRulePerformanceTest(ruleSet, after, before, limit) {
@@ -112,7 +112,6 @@ function executePerformanceTests() {
       let d1 = dates1.at(i);
       let d2 = dates2.at(i);
 
-      d1 = d1 ? new Date(d1) : null;
       d2 = getInstanceStartAt(d2, event.startAt).toJSDate();
 
       if (d1?.getTime() !== d2?.getTime()) {
