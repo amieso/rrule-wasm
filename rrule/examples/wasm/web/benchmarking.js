@@ -44,8 +44,8 @@ init();
 
 function executePerformanceTests() {
   const ruleSet = document.getElementById("ruleSet").value.replaceAll('\\n', '\n');
-  const afterDateString = document.getElementById("after").value;
-  const beforeDateString = document.getElementById("before").value;
+  let afterDateString = document.getElementById("after").value;
+  let beforeDateString = document.getElementById("before").value;
   const limit = document.getElementById("limit").value;
 
   let after = new Date(afterDateString);
@@ -53,12 +53,12 @@ function executePerformanceTests() {
 
   const rustRRuleResultDiv = document.querySelector("#rustRRuleResult");
   rustRRuleResultDiv.innerHTML = "Executing ...";
-  rustRRuleResultDiv.innerHTML = executeRustRRulePerformanceTest(ruleSet, after, before, limit);
+  rustRRuleResultDiv.innerHTML = executeRustRRulePerformanceTest(ruleSet, afterDateString, beforeDateString, limit);
 
   setTimeout(() => {
-    const rruleResultDiv = document.querySelector("#rruleResult");
-    rruleResultDiv.innerHTML = "Executing ...";
-    rruleResultDiv.innerHTML = executeRRulePerformanceTest(ruleSet, after, before, limit);
+    // const rruleResultDiv = document.querySelector("#rruleResult");
+    // rruleResultDiv.innerHTML = "Executing ...";
+    // rruleResultDiv.innerHTML = executeRRulePerformanceTest(ruleSet, after, before, limit);
 
     const matchErrorsDiv = document.querySelector("#matchErrors");
 
@@ -84,8 +84,11 @@ function executePerformanceTests() {
       ],
     };
 
-    after = new Date('2019-06-05T21:00:00Z');
-    before = new Date('2022-06-22T20:59:59Z');
+    afterDateString = '2019-06-05T21:00:00Z';
+    beforeDateString = '2022-06-22T20:59:59Z';
+
+    after = new Date(afterDateString);
+    before = new Date(beforeDateString);
 
     const event = {
       recurrenceRules: sourceEvent.recurrence,
@@ -101,7 +104,7 @@ function executePerformanceTests() {
     const dates1 = getAllRecurrencesBetween([
       // `DTSTART;TZID=Asia/Kolkata:20230531T200000`,
       'DTSTART;TZID=Europe/Moscow:20190813T153000',
-      ...sourceEvent.recurrence].join('\n'), after, before, limit);
+      ...sourceEvent.recurrence].join('\n'), afterDateString, beforeDateString, limit);
     const dates2 = rruleSet.between(after, before);
 
     console.log(dates1, dates2);
@@ -112,6 +115,7 @@ function executePerformanceTests() {
       let d1 = dates1.at(i);
       let d2 = dates2.at(i);
 
+      d1 = d1 ? new Date(d1) : undefined;
       d2 = getInstanceStartAt(d2, event.startAt).toJSDate();
 
       if (d1?.getTime() !== d2?.getTime()) {

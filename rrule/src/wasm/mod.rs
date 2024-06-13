@@ -1,8 +1,7 @@
-mod datetime_utils;
-
 use wasm_bindgen::prelude::*;
+use chrono::{DateTime};
 use crate::{RRuleSet, RRuleError};
-use js_sys::Date;
+use crate::{core::Tz};
 
 const MAX_OCCURRENCES_COUNT: u16  = 730;
 
@@ -19,11 +18,11 @@ pub fn set_panic_hook() {
 
 /// Get all recurrences of the rrule
 #[wasm_bindgen(js_name = getAllRecurrencesBetween)]
-pub fn get_all_recurrences_between(rules: &str, after: Date, before: Date, count: Option<u32>) -> Result<Vec<Date>, JsError> {
+pub fn get_all_recurrences_between(rules: &str, after: &str, before: &str, count: Option<u32>) -> Result<Vec<JsValue>, JsError> {
     set_panic_hook();
 
-    let after = datetime_utils::convert_js_date_to_datetime(&after).map_err(JsError::from);
-    let before = datetime_utils::convert_js_date_to_datetime(&before).map_err(JsError::from);
+    let after = parse_date(after);
+    let before = parse_date(before);
 
     match (parser_rrule_set(rules), after, before) {
         (Ok(rrule_set), Ok(after), Ok(before)) => {
@@ -42,7 +41,14 @@ pub fn get_all_recurrences_between(rules: &str, after: Date, before: Date, count
         },
         (Err(e), _, _) => Err(e),
         (_, Err(e), _) => Err(e),
-        (_, _, Err(e)) => Err(e),
+        (_, _, Err(e)) => Err(e)
+    }
+}
+
+fn parse_date(date: &str) -> Result<DateTime<Tz>, JsError> {
+    match DateTime::parse_from_rfc3339(date) {
+        Ok(datetime) => Ok(datetime.with_timezone(&Tz::UTC)),
+        Err(e) => Err(JsError::from(e)),
     }
 }
 
@@ -55,12 +61,12 @@ fn parser_rrule_set(rules: &str) -> Result<RRuleSet, JsError> {
     }
 }
 
-fn get_all_recurrences_for(rrule_set: RRuleSet) -> Vec<Date> {
+fn get_all_recurrences_for(rrule_set: RRuleSet) -> Vec<JsValue> {
     let rrule_set_collection = rrule_set.all(MAX_OCCURRENCES_COUNT);
-    let result: Vec<Date> = rrule_set_collection.dates
+    let result: Vec<JsValue> = rrule_set_collection.dates
         .into_iter()
         .map(|dt| {
-            Date::new(&JsValue::from_str(&dt.to_rfc3339()))
+            JsValue::from_str(&dt.to_rfc3339())
         })
         .collect();
 
