@@ -1,3 +1,20 @@
+<h1 align="center">RRule WASM</h1>
+<p align="center">This is a fork of <b>RRule.rs</b> that provides WASM bindings for JavaScript, suitable for both Web and Node.js environments.</p>
+
+### Building the WASM module
+
+To build the WASM module, you need to have `rust` and `wasm-pack` installed, after that you can run the following command:
+
+```bash
+cd rrule
+make build-wasm-web
+make build-wasm-nodejs
+```
+
+After that, you will have the WASM modules in the `pkg` directory.
+
+---
+
 <h1 align="center">RRule.rs</h1>
 <p align="center">A pure and efficient Rust implementation of recurrence rules as defined in the iCalendar RFC.</p>
 <p align="center">
