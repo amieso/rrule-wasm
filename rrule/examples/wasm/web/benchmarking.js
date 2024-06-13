@@ -2,17 +2,14 @@ import init, { getAllRecurrencesBetween } from '../../../pkg/web/rrule.js';
 import { tryParseEventRecurrenceRules, createValidDateTimeFromISO, getInstanceStartAt } from './rrule_utils.js';
 
 function executeRRulePerformanceTest(ruleSet, after, before, limit) {
-  var rruleWork = () => {
-    const rule = new rrule.rrulestr(ruleSet);
-    const results = rule.between(after, before);
-  }
-  return executeWork(rruleWork, "rrule");
+  return executeWork(() => {
+    return (new rrule.rrulestr(ruleSet)).between(after, before);
+  }, "rrule");
 }
-async function executeRustRRulePerformanceTest(ruleSet, after, before, limit) {
-  var rustWork = () => {
-    const data = getAllRecurrencesBetween(ruleSet, after, before, limit);
-  }
-  return executeWork(rustWork, "rust-rrule");
+function executeRustRRulePerformanceTest(ruleSet, after, before, limit) {
+  return executeWork(() => {
+    return getAllRecurrencesBetween(ruleSet, after, before, limit);
+  }, "rust-rrule");
 }
 
 const performance = window.performance;
@@ -43,25 +40,20 @@ function executeWork(work, framework, rounds = 100) {
   return `Call to ${framework} took an average of ${mean.toFixed(2)} milliseconds with a 95% confidence interval of (${confidenceInterval[0].toFixed(2)}, ${confidenceInterval[1].toFixed(2)}) milliseconds.`;
 }
 
-async function executePerformanceTests() {
+init();
+
+function executePerformanceTests() {
   const ruleSet = document.getElementById("ruleSet").value.replaceAll('\\n', '\n');
   const afterDateString = document.getElementById("after").value;
   const beforeDateString = document.getElementById("before").value;
   const limit = document.getElementById("limit").value;
+
   let after = new Date(afterDateString);
   let before = new Date(beforeDateString)
 
-  const wasmInitTimeDiv = document.querySelector("#wasmInitTime");
-
-  wasmInitTimeDiv.innerHTML = "Loading ...";
-  const t0 = performance.now();
-  await init();
-  const t1 = performance.now();
-  wasmInitTimeDiv.innerHTML = (t1 - t0) + " milliseconds.";
-
   const rustRRuleResultDiv = document.querySelector("#rustRRuleResult");
   rustRRuleResultDiv.innerHTML = "Executing ...";
-  rustRRuleResultDiv.innerHTML = await executeRustRRulePerformanceTest(ruleSet, after, before, limit);
+  rustRRuleResultDiv.innerHTML = executeRustRRulePerformanceTest(ruleSet, after, before, limit);
 
   setTimeout(() => {
     const rruleResultDiv = document.querySelector("#rruleResult");

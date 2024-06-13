@@ -21,11 +21,12 @@ overflow-checks = true
 [profile.release]
 # Always have overflow checks until crate is stable, see roadmap.
 overflow-checks = false
- # Optimize for size
-opt-level = "z"
+# Optimize for speed
+opt-level = 3
 # Enable Link Time Optimization
 lto = true
 # Reduce the number of codegen units to increase optimization
 codegen-units = 1
 # Disable debug info
 debug = false
+

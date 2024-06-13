@@ -36,7 +36,7 @@ name = "rrule"
 required-features = ["cli-tool"]
 
 [features]
-default = ["wasm", "wee_alloc", "console_error_panic_hook"]
+default = ["wasm", "console_error_panic_hook"]
 
 # Allows the enabling of the `by_easter` field and `BYEASTER` parser.
 by-easter = []
@@ -55,3 +55,6 @@ wasm = ["dep:wasm-bindgen", "dep:js-sys"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ['-O3']
