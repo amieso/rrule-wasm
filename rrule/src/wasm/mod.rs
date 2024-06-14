@@ -30,7 +30,9 @@ pub fn get_all_recurrences_between(rules: &str, after: &str, before: &str, count
             let max_count: u32 = MAX_OCCURRENCES_COUNT.into();
 
             cloned_rrules.iter_mut().for_each(|rrule| {
-                if rrule.count.is_none() || rrule.count.unwrap() > max_count {
+                if count != None {
+                    rrule.count = count;
+                } else if rrule.count.is_none() || rrule.count.unwrap() > max_count {
                     rrule.count = Some(max_count);
                 }
             });
