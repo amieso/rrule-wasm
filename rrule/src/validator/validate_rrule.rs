@@ -75,12 +75,16 @@ fn validate_until(rrule: &RRule<Unvalidated>, dt_start: &DateTime) -> Result<(),
                 }
             }
 
+// Below code was removed because we have cases where UNTIL is earlier than DTSTART.
+//
 //             if until < *dt_start {
 //                 return Err(ValidationError::UntilBeforeStart {
 //                     until: until.to_rfc3339(),
 //                     dt_start: dt_start.to_rfc3339(),
 //                 });
 //             }
+//
+
             Ok(())
         }
         _ => Ok(()),

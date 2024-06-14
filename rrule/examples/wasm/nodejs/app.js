@@ -2,8 +2,7 @@ const { getAllRecurrencesBetween } = require('../../../pkg/nodejs/rrule.js');
 
 const rule_set = [
   'DTSTART:20120201T093000Z',
-  'RRULE:FREQ=DAILY;UNTIL=20120201T090000Z',
-  'RDATE:20120201T093000Z'
+  'RRULE:FREQ=DAILY;UNTIL=20120201T090000Z'
 ].join('\n')
 const data = getAllRecurrencesBetween(
   rule_set,

@@ -28,12 +28,25 @@ pub fn get_all_recurrences_between(rules: &str, after: &str, before: &str, count
         (Ok(rrule_set), Ok(after), Ok(before)) => {
             let mut cloned_rrules = rrule_set.get_rrule().clone();
             let max_count: u32 = MAX_OCCURRENCES_COUNT.into();
+            let dt_start_utc = rrule_set.dt_start.with_timezone(&Tz::UTC);
 
             cloned_rrules.iter_mut().for_each(|rrule| {
+                // Handle the limit of the number of recurrences
                 if let Some(count) = count {
+                    // If count is provided, use it.
                     rrule.count = Some(count);
                 } else if rrule.count.is_none() || rrule.count.unwrap() > max_count {
+                    // Otherwise, use the max count.
                     rrule.count = Some(max_count);
+                }
+
+                // Handle the case when UNTIL is earlier than the DTSTART
+                if let Some(until) = rrule.until {
+                    let until_utc = until.with_timezone(&Tz::UTC);
+
+                    if until_utc < dt_start_utc {
+                        rrule.until = Some(dt_start_utc);
+                    }
                 }
             });
 
