@@ -1,0 +1,13 @@
+[package]
+name = "rust_recurrence_generator"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+chrono = "0.4.38"
+
+[dependencies.rrule]
+path = "../rrule"

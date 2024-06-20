@@ -1,0 +1,4 @@
+module rust_recurrence_generator {
+    header "c_api.h"
+    export *
+}

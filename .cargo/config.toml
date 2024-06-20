@@ -1,6 +1,5 @@
 [target.'cfg(all())']
 rustflags = [
-    "-Funsafe_code",
     "-Wclippy::missing_panics_doc",
     "-Wclippy::panic_in_result_fn",
     "-Wclippy::panic",
@@ -12,4 +11,8 @@ rustflags = [
     # "-Wmissing_debug_implementations",
     # "-Wmissing_docs",
     "-Wunused_qualifications",
+
+    # needed to comment this flag in order to expose C functions
+    # in `rust_recurrence_generator`
+    # "-Funsafe_code",
 ]
