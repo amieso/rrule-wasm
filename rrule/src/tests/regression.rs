@@ -69,3 +69,62 @@ fn issue_111() {
     let rrule_str = format!("{}", rrule.unwrap());
     assert!(rrule_str.contains("WKST=SU"));
 }
+
+#[test]
+fn issue_119_return_correct_number_of_instances() {
+    let dates = "DTSTART;TZID=Europe/Berlin:20240530T200000\nRDATE;TZID=Europe/Berlin:20240530T200000\nRRULE:FREQ=WEEKLY;COUNT=3;INTERVAL=1;BYDAY=WE"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(100)
+        .dates;
+
+    common::check_occurrences(
+        &dates,
+        &[
+            "2024-05-30T20:00:00+02:00",
+            "2024-06-05T20:00:00+02:00",
+            "2024-06-12T20:00:00+02:00",
+            "2024-06-19T20:00:00+02:00",
+        ],
+    );
+}
+
+#[test]
+fn issue_119_deduplicate() {
+    let dates = "DTSTART;TZID=Europe/Berlin:20240530T200000\nRDATE;TZID=Europe/Berlin:20240530T200000\nRRULE:FREQ=DAILY;COUNT=3"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(100)
+        .dates;
+
+    common::check_occurrences(
+        &dates,
+        &[
+            "2024-05-30T20:00:00+02:00",
+            "2024-05-31T20:00:00+02:00",
+            "2024-06-01T20:00:00+02:00",
+        ],
+    );
+}
+
+#[test]
+fn issue_119_limit_correctly_when_dtstart_is_synchronized_with_rule() {
+    let dates = "DTSTART;TZID=Europe/Berlin:20240530T200000\nRDATE;TZID=Europe/Berlin:20240530T200000\nRRULE:FREQ=DAILY"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(730)
+        .dates;
+
+    assert_eq!(dates.len(), 730);
+}
+
+#[test]
+fn issue_119_limit_correctly_when_dtstart_is_not_synchronized_with_rule() {
+    let dates = "DTSTART;TZID=Europe/Berlin:20240530T200000\nRDATE;TZID=Europe/Berlin:20240530T200000\nRRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=WE"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(730)
+        .dates;
+
+    assert_eq!(dates.len(), 730);
+}

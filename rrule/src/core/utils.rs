@@ -1,10 +1,10 @@
 use super::DateTime;
 use crate::iter::rrule_iter::WasLimited;
 use crate::RRuleResult;
-use std::ops::{
+use std::{collections::HashSet, ops::{
     Bound::{Excluded, Unbounded},
     RangeBounds,
-};
+}};
 
 /// Helper function to collect dates given some filters.
 ///
@@ -20,13 +20,14 @@ pub(super) fn collect_with_error<T>(
 where
     T: Iterator<Item = DateTime> + WasLimited,
 {
+    let mut seen = HashSet::new();
     let mut list = vec![];
     let mut was_limited = false;
     // This loop should always end because `.next()` has build in limits
     // Once a limit is tripped it will break in the `None` case.
     while limit.is_none() || matches!(limit, Some(limit) if usize::from(limit) > list.len()) {
         if let Some(value) = iterator.next() {
-            if is_in_range(&value, start, end, inclusive) {
+            if is_in_range(&value, start, end, inclusive) && seen.insert(value) {
                 list.push(value);
             }
             if has_reached_the_end(&value, end, inclusive) {

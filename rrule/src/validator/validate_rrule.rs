@@ -573,24 +573,25 @@ mod tests {
         }
     }
 
-    #[test]
-    fn rejects_start_date_after_until() {
-        let rrule = RRule {
-            until: Some(UTC.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap()),
-            ..Default::default()
-        };
-        let dt_start = UTC.with_ymd_and_hms(2020, 1, 2, 0, 0, 0).unwrap();
-        let res = validate_rrule_forced(&rrule, &dt_start);
-        assert!(res.is_err());
-        let err = res.unwrap_err();
-        assert_eq!(
-            err,
-            ValidationError::UntilBeforeStart {
-                until: rrule.until.unwrap().to_rfc3339(),
-                dt_start: dt_start.to_rfc3339()
-            }
-        );
-    }
+    // Below test was removed because we have cases where UNTIL is earlier than DTSTART.
+    // #[test]
+    // fn rejects_start_date_after_until() {
+    //     let rrule = RRule {
+    //         until: Some(UTC.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap()),
+    //         ..Default::default()
+    //     };
+    //     let dt_start = UTC.with_ymd_and_hms(2020, 1, 2, 0, 0, 0).unwrap();
+    //     let res = validate_rrule_forced(&rrule, &dt_start);
+    //     assert!(res.is_err());
+    //     let err = res.unwrap_err();
+    //     assert_eq!(
+    //         err,
+    //         ValidationError::UntilBeforeStart {
+    //             until: rrule.until.unwrap().to_rfc3339(),
+    //             dt_start: dt_start.to_rfc3339()
+    //         }
+    //     );
+    // }
 
     #[test]
     fn allows_until_with_compatible_timezone() {
