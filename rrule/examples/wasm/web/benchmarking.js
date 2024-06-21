@@ -56,9 +56,9 @@ function executePerformanceTests() {
   rustRRuleResultDiv.innerHTML = executeRustRRulePerformanceTest(ruleSet, afterDateString, beforeDateString, limit);
 
   setTimeout(() => {
-    // const rruleResultDiv = document.querySelector("#rruleResult");
-    // rruleResultDiv.innerHTML = "Executing ...";
-    // rruleResultDiv.innerHTML = executeRRulePerformanceTest(ruleSet, after, before, limit);
+    const rruleResultDiv = document.querySelector("#rruleResult");
+    rruleResultDiv.innerHTML = "Executing ...";
+    rruleResultDiv.innerHTML = executeRRulePerformanceTest(ruleSet, after, before, limit);
 
     const matchErrorsDiv = document.querySelector("#matchErrors");
 
