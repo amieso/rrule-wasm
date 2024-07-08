@@ -7,6 +7,7 @@
 typedef struct {
     char** strings;
     size_t len;
+    char* error;
 } StringArray;
 
 StringArray* recurrence_generator_generate(const char *rule, const char *after, const char *before);

@@ -10,6 +10,7 @@ use crate::parser::ContentLineCaptures;
 use crate::parser::ParseError;
 use crate::validator::validate_rrule;
 use crate::validator::ValidationError;
+use crate::Tz;
 use crate::{RRuleError, RRuleSet, Unvalidated, Validated};
 use chrono::{Datelike, Month, Weekday};
 #[cfg(feature = "serde")]
@@ -539,6 +540,18 @@ impl RRule<Unvalidated> {
 
         self.by_weekday.sort_unstable();
         self.by_weekday.dedup();
+
+        match (self.get_until(), dt_start.timezone()) {
+            (Some(until), Tz::Tz(_)) => {
+                // https://icalendar.org/iCalendar-RFC-5545/3-3-10-recurrence-rule.html
+                // If the "DTSTART" property is specified as a date with UTC time or a date with local time and 
+                // time zone reference, then the UNTIL rule part MUST be specified as a date with UTC time
+                if until.timezone() != Tz::UTC {
+                    self.until = Some(until.with_timezone(&Tz::UTC));
+                }
+            }
+            _ => {}
+        }
 
         self
     }

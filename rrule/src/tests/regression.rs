@@ -1,7 +1,7 @@
-use chrono::Month;
+use chrono::{DateTime, Month, TimeZone};
 
 use crate::tests::common;
-use crate::{Frequency, RRule, RRuleSet, Unvalidated};
+use crate::{Frequency, RRule, RRuleSet, Tz, Unvalidated};
 
 #[test]
 fn issue_34() {
@@ -127,4 +127,66 @@ fn issue_119_limit_correctly_when_dtstart_is_not_synchronized_with_rule() {
         .dates;
 
     assert_eq!(dates.len(), 730);
+}
+
+#[test]
+fn issue_until_is_all_day_but_rule_is_not() {
+    let dates = "DTSTART;TZID=Europe/Stockholm:20211217T120000\nRDATE;TZID=Europe/Stockholm:20211217T120000\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20220112;INTERVAL=2;BYDAY=FR,WE"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .after(DateTime::parse_from_rfc3339("2021-12-01T00:00:00+02:00").unwrap().with_timezone(&Tz::UTC))
+        .before(DateTime::parse_from_rfc3339("2022-02-01T23:59:59+02:00").unwrap().with_timezone(&Tz::UTC))
+        .all(730)
+        .dates;
+
+    assert_eq!(dates.len(), 3);
+
+    common::check_occurrences(
+        &dates,
+        &[
+            "2021-12-17T12:00:00+01:00",
+            "2021-12-29T12:00:00+01:00",
+            "2021-12-31T12:00:00+01:00",
+        ],
+    );
+}
+
+#[test]
+fn issue_until_is_all_day_but_rule_is_not_utc_timezone() {
+    let dates = "DTSTART:20211217T120000Z\nRDATE:20211217T120000Z\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20220112;INTERVAL=2;BYDAY=FR,WE"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .after(DateTime::parse_from_rfc3339("2021-12-01T00:00:00+02:00").unwrap().with_timezone(&Tz::UTC))
+        .before(DateTime::parse_from_rfc3339("2022-02-01T23:59:59+02:00").unwrap().with_timezone(&Tz::UTC))
+        .all(730)
+        .dates;
+
+    common::check_occurrences(
+        &dates,
+        &[
+            "2021-12-17T12:00:00+00:00",
+            "2021-12-29T12:00:00+00:00",
+            "2021-12-31T12:00:00+00:00",
+        ],
+    );
+}
+
+#[test]
+fn issue_until_is_all_day_but_rule_is_not_local_timezone() {
+    let dates = "DTSTART:20211217T120000\nRDATE:20211217T120000\nRRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20220112;INTERVAL=2;BYDAY=FR,WE"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .after(DateTime::parse_from_rfc3339("2021-12-01T00:00:00+02:00").unwrap().with_timezone(&Tz::UTC))
+        .before(DateTime::parse_from_rfc3339("2022-02-01T23:59:59+02:00").unwrap().with_timezone(&Tz::UTC))
+        .all(730)
+        .dates;
+
+    assert_eq!(
+        dates,
+        &[
+            Tz::LOCAL.with_ymd_and_hms(2021, 12, 17, 12, 0, 0).unwrap(),
+            Tz::LOCAL.with_ymd_and_hms(2021, 12, 29, 12, 0, 0).unwrap(),
+            Tz::LOCAL.with_ymd_and_hms(2021, 12, 31, 12, 0, 0).unwrap(),
+        ]
+    )
 }

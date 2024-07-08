@@ -29,7 +29,8 @@ impl RecurrenceGenerator {
                     .dates;
                 return Ok(dates);
             }
-            (_, _, _) => return Err(RecurrenceGeneratorError::Parsing),
+            (Ok(_), _, _) => return Err(RecurrenceGeneratorError::Parsing),
+            (Err(error), _, _) => return Err(RecurrenceGeneratorError::RRule(error)),
         }
     }
 
@@ -42,5 +43,6 @@ impl RecurrenceGenerator {
 }
 
 pub enum RecurrenceGeneratorError {
+    RRule(RRuleError),
     Parsing,
 }
