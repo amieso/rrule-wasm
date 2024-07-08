@@ -4,7 +4,7 @@ pub mod c_api {
 
     use chrono::DateTime;
 
-    use crate::recurrence_generator::RecurrenceGenerator;
+    use crate::recurrence_generator::{RecurrenceGenerator, RecurrenceGeneratorError};
     use rrule::Tz;
     use std::{
         ffi::{c_char, CStr, CString},
@@ -18,6 +18,9 @@ pub mod c_api {
 
         // Number of strings
         len: usize,
+
+        // Pointer to an error string (optional, can be null)
+        error: *mut i8,
     }
 
     #[no_mangle]
@@ -48,10 +51,21 @@ pub mod c_api {
 
         match result {
             Ok(dates) => dates_to_string_array(dates),
-            Err(_e) => {
+            Err(RecurrenceGeneratorError::RRule(error)) => {
+                let c_error = CString::new(error.to_string()).unwrap();
                 let string_array = StringArray {
                     strings: ptr::null_mut(),
                     len: 0,
+                    error: c_error.into_raw()
+                };
+                return Box::into_raw(Box::new(string_array));
+            },
+            Err(RecurrenceGeneratorError::Parsing) => {
+                let c_error = CString::new("error parsing before/after dates").unwrap();
+                let string_array = StringArray {
+                    strings: ptr::null_mut(),
+                    len: 0,
+                    error: c_error.into_raw()
                 };
                 return Box::into_raw(Box::new(string_array));
             }
@@ -63,6 +77,9 @@ pub mod c_api {
         if !array.is_null() {
             unsafe {
                 let array = Box::from_raw(array);
+                if !array.error.is_null() {
+                    let _ = CString::from_raw(array.error);
+                }
                 let slice = std::slice::from_raw_parts_mut(array.strings, array.len);
                 for &mut ptr in slice {
                     if !ptr.is_null() {
@@ -92,6 +109,7 @@ pub mod c_api {
         let string_array = StringArray {
             strings: c_strings.as_mut_ptr(),
             len: c_strings.len(),
+            error: ptr::null_mut()
         };
 
         // Prevent Rust from freeing the Vec
