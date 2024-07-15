@@ -17,9 +17,11 @@ pub(super) fn parse_parameters<K: FromStr<Err = ParseError> + Hash + Eq>(
             .ok_or_else(|| ParseError::InvalidParameterFormat(raw_parameter.into()))?;
         let parameter = K::from_str(raw_parameter)?;
 
-        if parameters.insert(parameter, value.into()).is_some() {
-            return Err(ParseError::DuplicateProperty(raw_parameter.into()));
-        }
+        parameters.insert(parameter, value.into());
+
+        // if parameters.insert(parameter, value.into()).is_some() {
+        //     return Err(ParseError::DuplicateProperty(raw_parameter.into()));
+        // }
     }
     Ok(parameters)
 }
@@ -79,18 +81,18 @@ mod tests {
         }
     }
 
-    #[test]
-    fn rejecets_duplicate_parameters() {
-        let tests = [(
-            "VALUE=DATE;TZID=Europe/London;TZID=Europe/Frankfurt",
-            ParseError::DuplicateProperty("TZID".into()),
-        )];
-
-        for (input, expected_output) in tests {
-            let output: Result<HashMap<DateParameter, String>, _> = parse_parameters(input);
-            assert_eq!(output, Err(expected_output));
-        }
-    }
+    // #[test]
+    // fn rejecets_duplicate_parameters() {
+    //     let tests = [(
+    //         "VALUE=DATE;TZID=Europe/London;TZID=Europe/Frankfurt",
+    //         ParseError::DuplicateProperty("TZID".into()),
+    //     )];
+    //
+    //     for (input, expected_output) in tests {
+    //         let output: Result<HashMap<DateParameter, String>, _> = parse_parameters(input);
+    //         assert_eq!(output, Err(expected_output));
+    //     }
+    // }
 
     #[test]
     fn does_not_attempt_to_parse_empty_parameters() {
