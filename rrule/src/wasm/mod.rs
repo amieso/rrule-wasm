@@ -3,8 +3,8 @@ use chrono::{DateTime};
 use crate::{RRuleSet, RRuleError};
 use crate::{core::Tz};
 
-const MAX_OCCURRENCES_COUNT: u16  = 730;
-const MAX_RESULT_LIMIT: u16  = 1000;
+const MAX_OCCURRENCES_COUNT: u16 = 730;
+const MAX_RESULT_LIMIT: u16 = 1000;
 
 /// When the `console_error_panic_hook` feature is enabled, we can call the
 /// `set_panic_hook` function at least once during initialization, and then
@@ -29,7 +29,6 @@ pub fn get_all_recurrences_between(rules: &str, after: &str, before: &str, count
         (Ok(rrule_set), Ok(after), Ok(before)) => {
             let mut cloned_rrules = rrule_set.get_rrule().clone();
             let max_count: u32 = MAX_OCCURRENCES_COUNT.into();
-            let dt_start_utc = rrule_set.dt_start.with_timezone(&Tz::UTC);
 
             cloned_rrules.iter_mut().for_each(|rrule| {
                 // Handle the limit of the number of recurrences
@@ -40,21 +39,12 @@ pub fn get_all_recurrences_between(rules: &str, after: &str, before: &str, count
                     // Otherwise, use the max count.
                     rrule.count = Some(max_count);
                 }
-
-                // Handle the case when UNTIL is earlier than the DTSTART
-                if let Some(until) = rrule.until {
-                    let until_utc = until.with_timezone(&Tz::UTC);
-
-                    if until_utc < dt_start_utc {
-                        rrule.until = Some(dt_start_utc);
-                    }
-                }
             });
 
             let final_rrule_set = rrule_set.set_rrules(cloned_rrules).after(after).before(before);
 
             Ok(get_all_recurrences_for(final_rrule_set))
-        },
+        }
         (Err(e), _, _) => Err(e),
         (_, Err(e), _) => Err(e),
         (_, _, Err(e)) => Err(e)
