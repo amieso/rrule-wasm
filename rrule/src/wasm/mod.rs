@@ -1,5 +1,4 @@
 use wasm_bindgen::prelude::*;
-use std::collections::HashSet;
 use chrono::{DateTime};
 use crate::{RRuleSet, RRuleError};
 use crate::{core::Tz};
@@ -80,14 +79,10 @@ fn parser_rrule_set(rules: &str) -> Result<RRuleSet, JsError> {
 
 fn get_all_recurrences_for(rrule_set: RRuleSet) -> Vec<JsValue> {
     let rrule_set_collection = rrule_set.all(MAX_RESULT_LIMIT);
-    let mut seen = HashSet::new();
     let mut result = Vec::new();
 
     for dt in rrule_set_collection.dates {
-        let rfc3339_str = dt.to_rfc3339();
-        if seen.insert(rfc3339_str.clone()) {
-            result.push(JsValue::from_str(&rfc3339_str));
-        }
+        result.push(JsValue::from_str(&dt.to_rfc3339()));
     }
 
     result
