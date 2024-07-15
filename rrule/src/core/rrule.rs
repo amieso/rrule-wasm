@@ -510,6 +510,21 @@ impl RRule<Unvalidated> {
             self.by_second = vec![second];
         }
 
+        //  BYMONTHDAY must not be specified when the FREQ rule part is set to WEEKLY.
+        if !self.by_month_day.is_empty() && self.freq == Frequency::Weekly {
+            self.by_month_day.clear();
+        }
+
+        // BYYEARDAY must not be specified when the FREQ rule part is set to DAILY, WEEKLY, or MONTHLY.
+        if !self.by_year_day.is_empty() && matches!(self.freq, Frequency::Monthly | Frequency::Weekly | Frequency::Daily) {
+            self.by_year_day.clear();
+        }
+
+        // BYWEEKNO must not be used when the FREQ rule part is set to anything other than YEARLY.
+        if !self.by_week_no.is_empty() && self.freq != Frequency::Yearly {
+            self.by_week_no.clear();
+        }
+
         // make sure all BYXXX are unique and sorted
         self.by_hour.sort_unstable();
         self.by_hour.dedup();
