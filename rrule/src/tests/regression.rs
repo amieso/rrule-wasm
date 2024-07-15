@@ -1,7 +1,7 @@
-use chrono::{DateTime, Month, TimeZone};
-
 use crate::tests::common;
 use crate::{Frequency, RRule, RRuleSet, Tz, Unvalidated};
+use chrono::{DateTime, Month, TimeZone};
+use std::env;
 
 #[test]
 fn issue_34() {
@@ -189,4 +189,95 @@ fn issue_until_is_all_day_but_rule_is_not_local_timezone() {
             Tz::LOCAL.with_ymd_and_hms(2021, 12, 31, 12, 0, 0).unwrap(),
         ]
     )
+}
+
+#[test]
+fn issue_local_asia_almaty_ambiguous_date_on_timezone_change() {
+    with_timezone("Asia/Almaty", || {
+        let dates: Vec<DateTime<Tz>> = "DTSTART:20240301\nRDATE:20240301\nRRULE:FREQ=YEARLY"
+            .parse::<RRuleSet>()
+            .unwrap()
+            .after(
+                DateTime::parse_from_rfc3339("2024-01-01T00:00:00+00:00")
+                    .unwrap()
+                    .with_timezone(&Tz::UTC),
+            )
+            .before(
+                DateTime::parse_from_rfc3339("2025-01-01T00:00:00+00:00")
+                    .unwrap()
+                    .with_timezone(&Tz::UTC),
+            )
+            .all(730)
+            .dates;
+
+        common::check_occurrences(&dates, &["2024-03-01T00:00:00+06:00"]);
+    });
+}
+
+#[test]
+fn issue_local_timezone_america_edmonton_ambiguous_date_on_dst_switch_off() {
+    with_timezone("America/Edmonton", || {
+        let dates: Vec<DateTime<Tz>> =
+            "DTSTART:20201101T010000\nRDATE:20201101T010000\nRRULE:FREQ=YEARLY"
+                .parse::<RRuleSet>()
+                .unwrap()
+                .after(
+                    DateTime::parse_from_rfc3339("2020-01-01T00:00:00+00:00")
+                        .unwrap()
+                        .with_timezone(&Tz::UTC),
+                )
+                .before(
+                    DateTime::parse_from_rfc3339("2021-01-01T00:00:00+00:00")
+                        .unwrap()
+                        .with_timezone(&Tz::UTC),
+                )
+                .all(730)
+                .dates;
+
+        common::check_occurrences(&dates, &["2020-11-01T01:00:00-06:00"]);
+    });
+}
+
+#[test]
+fn issue_america_edmonton_ambiguous_date_on_dst_switch_off() {
+    let dates: Vec<DateTime<Tz>> =
+        "DTSTART;TZID=America/Edmonton:20201101T010000\nRDATE;TZID=America/Edmonton:20201101T010000\nRRULE:FREQ=YEARLY"
+            .parse::<RRuleSet>()
+            .unwrap()
+            .after(
+                DateTime::parse_from_rfc3339("2020-01-01T00:00:00+00:00")
+                    .unwrap()
+                    .with_timezone(&Tz::UTC),
+            )
+            .before(
+                DateTime::parse_from_rfc3339("2021-01-01T00:00:00+00:00")
+                    .unwrap()
+                    .with_timezone(&Tz::UTC),
+            )
+            .all(730)
+            .dates;
+
+    common::check_occurrences(&dates, &["2020-11-01T01:00:00-06:00"]);
+}
+
+fn with_timezone<F: FnOnce()>(tz: &str, test: F) {
+    // Save the current timezone to restore it later
+    let original_tz = env::var("TZ").ok();
+
+    // Set the new timezone
+    env::set_var("TZ", tz);
+    // Force chrono to update its internal timezone cache
+    chrono::Local::now();
+
+    // Run the test
+    test();
+
+    // Restore the original timezone
+    if let Some(tz) = original_tz {
+        env::set_var("TZ", tz);
+    } else {
+        env::remove_var("TZ");
+    }
+    // Force chrono to update its internal timezone cache again
+    chrono::Local::now();
 }
