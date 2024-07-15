@@ -16,7 +16,6 @@ use super::{content_line_parts::ContentLineCaptures, parameters::parse_parameter
 pub enum DateParameter {
     Timezone,
     Value,
-    Other
 }
 
 impl FromStr for DateParameter {
@@ -26,7 +25,7 @@ impl FromStr for DateParameter {
         let param = match &s.to_uppercase()[..] {
             "TZID" => Self::Timezone,
             "VALUE" => Self::Value,
-            _ => Self::Other,
+            _ => return Err(ParseError::UnrecognizedParameter(s.into())),
         };
         Ok(param)
     }

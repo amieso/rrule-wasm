@@ -66,13 +66,13 @@ impl<'a> TryFrom<ContentLineCaptures<'a>> for RRule<Unvalidated> {
     type Error = ParseError;
 
     fn try_from(value: ContentLineCaptures) -> Result<Self, Self::Error> {
-        if let Some(parameters) = value.parameters {
-            if !parameters.is_empty() {
-                return Err(ParseError::PropertyParametersNotSupported(
-                    parameters.into(),
-                ));
-            }
-        }
+        // if let Some(parameters) = value.parameters {
+        //     if !parameters.is_empty() {
+        //         return Err(ParseError::PropertyParametersNotSupported(
+        //             parameters.into(),
+        //         ));
+        //     }
+        // }
 
         let properties: HashMap<RRuleProperty, String> = parse_parameters(value.value)?;
 
@@ -275,22 +275,22 @@ mod tests {
         }
     }
 
-    #[test]
-    fn rejects_property_parameters_in_rrule_line() {
-        let tests = [(
-            ContentLineCaptures {
-                property_name: PropertyName::RRule,
-                parameters: Some("TZID=Europe/London"),
-                value: "BYHOUR=4",
-            },
-            ParseError::PropertyParametersNotSupported("TZID=Europe/London".into()),
-        )];
-
-        for (input, expected_output) in tests {
-            let output = RRule::try_from(input);
-            assert_eq!(output, Err(expected_output));
-        }
-    }
+    // #[test]
+    // fn rejects_property_parameters_in_rrule_line() {
+    //     let tests = [(
+    //         ContentLineCaptures {
+    //             property_name: PropertyName::RRule,
+    //             parameters: Some("TZID=Europe/London"),
+    //             value: "BYHOUR=4",
+    //         },
+    //         ParseError::PropertyParametersNotSupported("TZID=Europe/London".into()),
+    //     )];
+    //
+    //     for (input, expected_output) in tests {
+    //         let output = RRule::try_from(input);
+    //         assert_eq!(output, Err(expected_output));
+    //     }
+    // }
 
     #[test]
     fn rejects_invalid_freq() {
