@@ -53,18 +53,18 @@ mod tests {
         }
     }
 
-    #[test]
-    fn rejecets_unrecognized_property_parameters() {
-        let tests = [(
-            "VALUES=DATE",
-            ParseError::UnrecognizedParameter("VALUES".into()),
-        )];
-
-        for (input, expected_output) in tests {
-            let output: Result<HashMap<DateParameter, String>, _> = parse_parameters(input);
-            assert_eq!(output, Err(expected_output));
-        }
-    }
+    // #[test]
+    // fn rejecets_unrecognized_property_parameters() {
+    //     let tests = [(
+    //         "VALUES=DATE",
+    //         ParseError::UnrecognizedParameter("VALUES".into()),
+    //     )];
+    //
+    //     for (input, expected_output) in tests {
+    //         let output: Result<HashMap<DateParameter, String>, _> = parse_parameters(input);
+    //         assert_eq!(output, Err(expected_output));
+    //     }
+    // }
 
     #[test]
     fn rejecets_malformed_property_parameters() {

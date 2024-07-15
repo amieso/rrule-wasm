@@ -260,6 +260,17 @@ fn issue_america_edmonton_ambiguous_date_on_dst_switch_off() {
     common::check_occurrences(&dates, &["2020-11-01T01:00:00-06:00"]);
 }
 
+#[test]
+fn issue_ignore_3rd_party_params() {
+    let dates = "DTSTART;X-BUSYMAC-REGENERATE=TRASH;TZID=Europe/Berlin:20201101T010000\nRRULE:FREQ=MONTHLY"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(1)
+        .dates;
+
+    common::check_occurrences(&dates, &["2020-11-01T01:00:00+01:00"]);
+}
+
 fn with_timezone<F: FnOnce()>(tz: &str, test: F) {
     // Save the current timezone to restore it later
     let original_tz = env::var("TZ").ok();
