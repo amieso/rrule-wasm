@@ -75,12 +75,13 @@ pub(crate) fn datestring_to_date(
                 }),
                 LocalResult::Single(date) => Ok(date),
                 LocalResult::Ambiguous(date1, date2) => {
-                    Err(ParseError::DateTimeInLocalTimezoneIsAmbiguous {
-                        value: dt.into(),
-                        property: property.into(),
-                        date1: date1.to_rfc3339(),
-                        date2: date2.to_rfc3339(),
-                    })
+                    return Ok(date1);
+                    // Err(ParseError::DateTimeInLocalTimezoneIsAmbiguous {
+                    //     value: dt.into(),
+                    //     property: property.into(),
+                    //     date1: date1.to_rfc3339(),
+                    //     date2: date2.to_rfc3339(),
+                    // })
                 }
             }?
         } else {
@@ -96,12 +97,13 @@ pub(crate) fn datestring_to_date(
                 }
                 LocalResult::Single(date) => date,
                 LocalResult::Ambiguous(date1, date2) => {
-                    return Err(ParseError::DateTimeInLocalTimezoneIsAmbiguous {
-                        value: dt.into(),
-                        property: property.into(),
-                        date1: date1.to_rfc3339(),
-                        date2: date2.to_rfc3339(),
-                    })
+                    return Ok(date1);
+                    // return Err(ParseError::DateTimeInLocalTimezoneIsAmbiguous {
+                    //     value: dt.into(),
+                    //     property: property.into(),
+                    //     date1: date1.to_rfc3339(),
+                    //     date2: date2.to_rfc3339(),
+                    // })
                 }
             }
         }
