@@ -192,10 +192,8 @@ fn issue_until_is_all_day_but_rule_is_not_local_timezone() {
 }
 
 #[test]
-fn issue_asia_almaty_ambiguous_date_on_timezone_change() {
-
+fn issue_local_asia_almaty_ambiguous_date_on_timezone_change() {
     with_timezone("Asia/Almaty", || {
-
         let dates: Vec<DateTime<Tz>> = "DTSTART:20240301\nRDATE:20240301\nRRULE:FREQ=YEARLY"
             .parse::<RRuleSet>()
             .unwrap()
@@ -212,16 +210,38 @@ fn issue_asia_almaty_ambiguous_date_on_timezone_change() {
             .all(730)
             .dates;
 
-        common::check_occurrences(&dates, &["2024-03-01T00:00:00+05:00"]);
+        common::check_occurrences(&dates, &["2024-03-01T00:00:00+06:00"]);
     });
 }
 
 #[test]
-fn issue_america_edmonton_ambiguous_date_on_dst_switch_on() {
-
+fn issue_local_timezone_america_edmonton_ambiguous_date_on_dst_switch_off() {
     with_timezone("America/Edmonton", || {
+        let dates: Vec<DateTime<Tz>> =
+            "DTSTART:20201101T010000\nRDATE:20201101T010000\nRRULE:FREQ=YEARLY"
+                .parse::<RRuleSet>()
+                .unwrap()
+                .after(
+                    DateTime::parse_from_rfc3339("2020-01-01T00:00:00+00:00")
+                        .unwrap()
+                        .with_timezone(&Tz::UTC),
+                )
+                .before(
+                    DateTime::parse_from_rfc3339("2021-01-01T00:00:00+00:00")
+                        .unwrap()
+                        .with_timezone(&Tz::UTC),
+                )
+                .all(730)
+                .dates;
 
-        let dates: Vec<DateTime<Tz>> = "DTSTART:20201101T010000\nRDATE:20201101T010000\nRRULE:FREQ=YEARLY"
+        common::check_occurrences(&dates, &["2020-11-01T01:00:00-06:00"]);
+    });
+}
+
+#[test]
+fn issue_america_edmonton_ambiguous_date_on_dst_switch_off() {
+    let dates: Vec<DateTime<Tz>> =
+        "DTSTART;TZID=America/Edmonton:20201101T010000\nRDATE;TZID=America/Edmonton:20201101T010000\nRRULE:FREQ=YEARLY"
             .parse::<RRuleSet>()
             .unwrap()
             .after(
@@ -237,10 +257,8 @@ fn issue_america_edmonton_ambiguous_date_on_dst_switch_on() {
             .all(730)
             .dates;
 
-        common::check_occurrences(&dates, &["2020-11-01T01:00:00-07:00"]);
-    });
+    common::check_occurrences(&dates, &["2020-11-01T01:00:00-06:00"]);
 }
-
 
 fn with_timezone<F: FnOnce()>(tz: &str, test: F) {
     // Save the current timezone to restore it later
