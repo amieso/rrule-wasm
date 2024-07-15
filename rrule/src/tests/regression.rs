@@ -261,7 +261,7 @@ fn issue_america_edmonton_ambiguous_date_on_dst_switch_off() {
 }
 
 #[test]
-fn issue_ignore_3rd_party_params_1() {
+fn issue_ignore_3rd_party_params() {
     let dates = "DTSTART;TZID=Europe/Berlin:20201101T010000\nRRULE;X-BUSYMAC-REGENERATE=TRASH:FREQ=MONTHLY"
         .parse::<RRuleSet>()
         .unwrap()
