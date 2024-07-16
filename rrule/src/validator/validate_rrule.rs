@@ -153,15 +153,15 @@ fn validate_by_month_day(
     validate_range_for_vec(&(-31..=31), &rrule.by_month_day, "BYMONTHDAY")?;
     // - MUST NOT be specified when the FREQ rule part is set to WEEKLY.
     //   Validated below
-    if !rrule.by_month_day.is_empty() {
-        let valid = rrule.freq != Frequency::Weekly;
-        if !valid {
-            return Err(ValidationError::InvalidByRuleAndFrequency {
-                by_rule: "BYMONTHDAY".into(),
-                freq: rrule.freq,
-            });
-        }
-    }
+    // if !rrule.by_month_day.is_empty() {
+    //     let valid = rrule.freq != Frequency::Weekly;
+    //     if !valid {
+    //         return Err(ValidationError::InvalidByRuleAndFrequency {
+    //             by_rule: "BYMONTHDAY".into(),
+    //             freq: rrule.freq,
+    //         });
+    //     }
+    // }
     Ok(())
 }
 
@@ -175,18 +175,18 @@ fn validate_by_year_day(
     validate_range_for_vec(&(-366..=366), &rrule.by_year_day, "BYYEARDAY")?;
     // - MUST NOT be specified when the FREQ rule part is set to DAILY, WEEKLY, or MONTHLY.
     //   Validated below
-    if !rrule.by_year_day.is_empty() {
-        let valid = !matches!(
-            rrule.freq,
-            Frequency::Monthly | Frequency::Weekly | Frequency::Daily
-        );
-        if !valid {
-            return Err(ValidationError::InvalidByRuleAndFrequency {
-                by_rule: "BYYEARDAY".into(),
-                freq: rrule.freq,
-            });
-        }
-    }
+    // if !rrule.by_year_day.is_empty() {
+    //     let valid = !matches!(
+    //         rrule.freq,
+    //         Frequency::Monthly | Frequency::Weekly | Frequency::Daily
+    //     );
+    //     if !valid {
+    //         return Err(ValidationError::InvalidByRuleAndFrequency {
+    //             by_rule: "BYYEARDAY".into(),
+    //             freq: rrule.freq,
+    //         });
+    //     }
+    // }
     Ok(())
 }
 // By_week_no:
@@ -199,15 +199,15 @@ fn validate_by_week_number(
     validate_range_for_vec(&(-53..=53), &rrule.by_week_no, "BYWEEKNO")?;
     // - MUST NOT be used when the FREQ rule part is set to anything other than YEARLY.
     //   Validated below
-    if !rrule.by_week_no.is_empty() {
-        let valid = rrule.freq == Frequency::Yearly;
-        if !valid {
-            return Err(ValidationError::InvalidByRuleAndFrequency {
-                by_rule: "BYWEEKNO".into(),
-                freq: rrule.freq,
-            });
-        }
-    }
+    // if !rrule.by_week_no.is_empty() {
+    //     let valid = rrule.freq == Frequency::Yearly;
+    //     if !valid {
+    //         return Err(ValidationError::InvalidByRuleAndFrequency {
+    //             by_rule: "BYWEEKNO".into(),
+    //             freq: rrule.freq,
+    //         });
+    //     }
+    // }
     Ok(())
 }
 
@@ -525,56 +525,56 @@ mod tests {
         }
     }
 
-    #[test]
-    fn rejects_invalid_by_rule_and_freq_combos() {
-        let tests = [
-            (
-                "BYMONTHDAY",
-                RRule {
-                    freq: Frequency::Weekly,
-                    by_month_day: vec![-1],
-                    ..Default::default()
-                },
-            ),
-            (
-                "BYYEARDAY",
-                RRule {
-                    freq: Frequency::Monthly,
-                    by_year_day: vec![120],
-                    ..Default::default()
-                },
-            ),
-            (
-                "BYYEARDAY",
-                RRule {
-                    freq: Frequency::Weekly,
-                    by_year_day: vec![120],
-                    ..Default::default()
-                },
-            ),
-            (
-                "BYYEARDAY",
-                RRule {
-                    freq: Frequency::Daily,
-                    by_year_day: vec![120],
-                    ..Default::default()
-                },
-            ),
-        ];
-        for (field, rrule) in tests {
-            let res =
-                validate_rrule_forced(&rrule, &UTC.with_ymd_and_hms(1970, 1, 1, 0, 0, 0).unwrap());
-            assert!(res.is_err());
-            let err = res.unwrap_err();
-            assert_eq!(
-                err,
-                ValidationError::InvalidByRuleAndFrequency {
-                    by_rule: field.into(),
-                    freq: rrule.freq
-                }
-            );
-        }
-    }
+    // #[test]
+    // fn rejects_invalid_by_rule_and_freq_combos() {
+    //     let tests = [
+    //         (
+    //             "BYMONTHDAY",
+    //             RRule {
+    //                 freq: Frequency::Weekly,
+    //                 by_month_day: vec![-1],
+    //                 ..Default::default()
+    //             },
+    //         ),
+    //         (
+    //             "BYYEARDAY",
+    //             RRule {
+    //                 freq: Frequency::Monthly,
+    //                 by_year_day: vec![120],
+    //                 ..Default::default()
+    //             },
+    //         ),
+    //         (
+    //             "BYYEARDAY",
+    //             RRule {
+    //                 freq: Frequency::Weekly,
+    //                 by_year_day: vec![120],
+    //                 ..Default::default()
+    //             },
+    //         ),
+    //         (
+    //             "BYYEARDAY",
+    //             RRule {
+    //                 freq: Frequency::Daily,
+    //                 by_year_day: vec![120],
+    //                 ..Default::default()
+    //             },
+    //         ),
+    //     ];
+    //     for (field, rrule) in tests {
+    //         let res =
+    //             validate_rrule_forced(&rrule, &UTC.with_ymd_and_hms(1970, 1, 1, 0, 0, 0).unwrap());
+    //         assert!(res.is_err());
+    //         let err = res.unwrap_err();
+    //         assert_eq!(
+    //             err,
+    //             ValidationError::InvalidByRuleAndFrequency {
+    //                 by_rule: field.into(),
+    //                 freq: rrule.freq
+    //             }
+    //         );
+    //     }
+    // }
 
     // Below test was removed because we have cases where UNTIL is earlier than DTSTART.
     // #[test]

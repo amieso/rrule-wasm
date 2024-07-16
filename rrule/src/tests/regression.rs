@@ -261,6 +261,90 @@ fn issue_america_edmonton_ambiguous_date_on_dst_switch_off() {
 }
 
 #[test]
+fn by_month_day_in_weekly_freq() {
+    let rrule_set = "DTSTART:20230101T000000Z\nRRULE:FREQ=WEEKLY;BYMONTHDAY=25;BYWEEKDAY=SU"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let rrule: &RRule = &rrule_set.get_rrule()[0];
+
+    assert_eq!(rrule.by_month_day.is_empty(), true);
+
+    let dates = rrule_set.all(5).dates;
+
+    common::check_occurrences(&dates, &[
+        "2023-01-01T00:00:00+00:00",
+        "2023-01-08T00:00:00+00:00",
+        "2023-01-15T00:00:00+00:00",
+        "2023-01-22T00:00:00+00:00",
+        "2023-01-29T00:00:00+00:00",
+    ]);
+}
+
+#[test]
+fn by_year_day_in_monthly_freq() {
+    let rrule_set = "DTSTART:20230101T000000Z\nRRULE:FREQ=MONTHLY;BYYEARDAY=25;BYMONTHDAY=25"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let rrule: &RRule = &rrule_set.get_rrule()[0];
+
+    assert_eq!(rrule.by_year_day.is_empty(), true);
+
+    let dates = rrule_set.all(5).dates;
+
+    common::check_occurrences(&dates, &[
+        "2023-01-25T00:00:00+00:00",
+        "2023-02-25T00:00:00+00:00",
+        "2023-03-25T00:00:00+00:00",
+        "2023-04-25T00:00:00+00:00",
+        "2023-05-25T00:00:00+00:00",
+    ]);
+}
+
+#[test]
+fn by_year_day_in_weekly_freq() {
+    let rrule_set = "DTSTART:20230101T000000Z\nRRULE:FREQ=WEEKLY;BYYEARDAY=25;BYWEEKDAY=SU"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let rrule: &RRule = &rrule_set.get_rrule()[0];
+
+    assert_eq!(rrule.by_year_day.is_empty(), true);
+
+    let dates = rrule_set.all(5).dates;
+
+    common::check_occurrences(&dates, &[
+        "2023-01-01T00:00:00+00:00",
+        "2023-01-08T00:00:00+00:00",
+        "2023-01-15T00:00:00+00:00",
+        "2023-01-22T00:00:00+00:00",
+        "2023-01-29T00:00:00+00:00",
+    ]);
+}
+
+#[test]
+fn by_year_day_in_daily_freq() {
+    let rrule_set = "DTSTART:20230101T000000Z\nRRULE:FREQ=DAILY;BYYEARDAY=25"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let rrule: &RRule = &rrule_set.get_rrule()[0];
+
+    assert_eq!(rrule.by_year_day.is_empty(), true);
+
+    let dates = rrule_set.all(5).dates;
+
+    common::check_occurrences(&dates, &[
+        "2023-01-01T00:00:00+00:00",
+        "2023-01-02T00:00:00+00:00",
+        "2023-01-03T00:00:00+00:00",
+        "2023-01-04T00:00:00+00:00",
+        "2023-01-05T00:00:00+00:00",
+    ]);
+}
+
+#[test]
 fn duplicate_property_for_until_should_use_latest_one() {
     let rrule_set = "DTSTART:20230101T000000Z\nRRULE:UNTIL=20280108T145959Z;FREQ=WEEKLY;BYDAY=SU;UNTIL=20230114T145959Z"
         .parse::<RRuleSet>()
