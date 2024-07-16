@@ -261,6 +261,24 @@ fn issue_america_edmonton_ambiguous_date_on_dst_switch_off() {
 }
 
 #[test]
+fn duplicate_property_for_until_should_use_latest_one() {
+    let rrule_set = "DTSTART:20230101T000000Z\nRRULE:UNTIL=20280108T145959Z;FREQ=WEEKLY;BYDAY=SU;UNTIL=20230114T145959Z"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let rrule = &rrule_set.get_rrule()[0];
+
+    assert_eq!(rrule.until, Some(common::ymd_hms(2023, 01, 14, 14, 59, 59)));
+
+    let dates = rrule_set.all(1000).dates;
+
+    common::check_occurrences(&dates, &[
+        "2023-01-01T00:00:00+00:00",
+        "2023-01-08T00:00:00+00:00"
+    ]);
+}
+
+#[test]
 fn issue_ignore_3rd_party_params() {
     let dates = "DTSTART;TZID=Europe/Berlin:20201101T010000\nRRULE;X-BUSYMAC-REGENERATE=TRASH:FREQ=MONTHLY"
         .parse::<RRuleSet>()
