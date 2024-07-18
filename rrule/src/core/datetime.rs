@@ -44,6 +44,14 @@ pub(crate) fn datetime_to_ical_format(dt: &chrono::DateTime<Tz>) -> String {
                 tz_prefix = format!(";TZID={}", tz.name());
             }
         },
+        Tz::FixedOffset(fixed_offset) => {
+            let offset = fixed_offset.local_minus_utc();
+            let (sign, offset) = if offset < 0 { ('-', -offset) } else { ('+', offset) };
+            let mins = offset.div_euclid(60);
+            let min = mins.rem_euclid(60);
+            let hour = mins.div_euclid(60);
+            tz_prefix = format!(";TZID=UTC{}{:02}{:02}", sign, hour, min);
+        },
     }
 
     let dt = dt.format("%Y%m%dT%H%M%S");

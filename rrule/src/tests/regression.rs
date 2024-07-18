@@ -373,6 +373,44 @@ fn issue_ignore_3rd_party_params() {
     common::check_occurrences(&dates, &["2020-11-01T01:00:00+01:00"]);
 }
 
+#[test]
+fn fixed_offset_tz() {
+    let rrule_set = "DTSTART;TZID=UTC+0530:20201101T010000\nRRULE:FREQ=MONTHLY"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let formatted_rrule_set = format!("{}", rrule_set);
+
+    assert_eq!(formatted_rrule_set, "DTSTART;TZID=UTC+0530:20201101T010000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=1;BYMINUTE=0;BYSECOND=0");
+
+    let dates = rrule_set
+        .all(3)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2020-11-01T01:00:00+05:30",
+        "2020-12-01T01:00:00+05:30",
+        "2021-01-01T01:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn utc_tz() {
+    let rrule_set = "DTSTART;TZID=UTC:20201101T010000\nRRULE:FREQ=MONTHLY"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let formatted_rrule_set = format!("{}", rrule_set);
+
+    assert_eq!(formatted_rrule_set, "DTSTART:20201101T010000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=1;BYMINUTE=0;BYSECOND=0");
+
+    let dates = rrule_set
+        .all(1)
+        .dates;
+
+    common::check_occurrences(&dates, &["2020-11-01T01:00:00+00:00"]);
+}
+
 fn with_timezone<F: FnOnce()>(tz: &str, test: F) {
     // Save the current timezone to restore it later
     let original_tz = env::var("TZ").ok();

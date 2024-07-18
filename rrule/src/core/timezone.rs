@@ -1,4 +1,4 @@
-use chrono::Local;
+use chrono::{Local, FixedOffset};
 
 /// A wrapper around `chrono_tz::Tz` that is able to represent `Local` timezone also.
 ///
@@ -17,6 +17,8 @@ use chrono::Local;
 pub enum Tz {
     /// Local timezone
     Local(Local),
+    /// Fixed offset timezone
+    FixedOffset(FixedOffset),
     /// Timezone represented by `chrono_tz::Tz`
     Tz(chrono_tz::Tz),
 }
@@ -24,10 +26,18 @@ pub enum Tz {
 impl Tz {
     /// Name of timezone
     #[must_use]
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> String {
         match self {
-            Self::Local(_) => "Local",
-            Self::Tz(tz) => tz.name(),
+            Self::Local(_) => "Local".to_string(),
+            Self::Tz(tz) => tz.name().to_string(),
+            Self::FixedOffset(fixed_offset) => {
+                let offset_seconds = fixed_offset.local_minus_utc();
+                let (sign, offset) = if offset_seconds < 0 { ('-', -offset_seconds) } else { ('+', offset_seconds) };
+                let mins = offset.div_euclid(60);
+                let min = mins.rem_euclid(60);
+                let hour = mins.div_euclid(60);
+                format!("UTC{}{:02}{:02}", sign, hour, min)
+            },
         }
     }
 
@@ -37,6 +47,7 @@ impl Tz {
         match self {
             Self::Local(_) => true,
             Self::Tz(_) => false,
+            Self::FixedOffset(_) => false,
         }
     }
 
