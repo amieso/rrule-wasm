@@ -6,7 +6,7 @@ use chrono::{NaiveDate, TimeZone, Weekday, FixedOffset};
 
 /// Attempts to convert a `str` to a `chrono_tz::Tz`.
 pub(crate) fn parse_timezone(tz: &str) -> Result<Tz, ParseError> {
-    if tz.len() > 3 && tz.starts_with("UTC") {
+    if tz.len() > 3 && (tz.starts_with("GMT") || tz.starts_with("UTC")) {
         let offset_str = &tz[3..]; // Remove "UTC"
 
         FixedOffset::from_str(offset_str)

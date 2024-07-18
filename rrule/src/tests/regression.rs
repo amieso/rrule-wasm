@@ -374,8 +374,29 @@ fn issue_ignore_3rd_party_params() {
 }
 
 #[test]
-fn fixed_offset_tz() {
+fn fixed_offset_utc_tz() {
     let rrule_set = "DTSTART;TZID=UTC+0530:20201101T010000\nRRULE:FREQ=MONTHLY"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let formatted_rrule_set = format!("{}", rrule_set);
+
+    assert_eq!(formatted_rrule_set, "DTSTART;TZID=UTC+0530:20201101T010000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=1;BYMINUTE=0;BYSECOND=0");
+
+    let dates = rrule_set
+        .all(3)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2020-11-01T01:00:00+05:30",
+        "2020-12-01T01:00:00+05:30",
+        "2021-01-01T01:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn fixed_offset_gmt_tz() {
+    let rrule_set = "DTSTART;TZID=GMT+0530:20201101T010000\nRRULE:FREQ=MONTHLY"
         .parse::<RRuleSet>()
         .unwrap();
 
@@ -402,7 +423,7 @@ fn utc_tz() {
 
     let formatted_rrule_set = format!("{}", rrule_set);
 
-    assert_eq!(formatted_rrule_set, "DTSTART:20201101T010000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=1;BYMINUTE=0;BYSECOND=0");
+    assert_eq!(formatted_rrule_set, "DTSTART:20201101T010000Z\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=1;BYMINUTE=0;BYSECOND=0");
 
     let dates = rrule_set
         .all(1)
@@ -410,6 +431,24 @@ fn utc_tz() {
 
     common::check_occurrences(&dates, &["2020-11-01T01:00:00+00:00"]);
 }
+
+#[test]
+fn gmt_tz() {
+    let rrule_set = "DTSTART;TZID=GMT:20201101T010000\nRRULE:FREQ=MONTHLY"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let formatted_rrule_set = format!("{}", rrule_set);
+
+    assert_eq!(formatted_rrule_set, "DTSTART:20201101T010000Z\nRRULE:FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=1;BYMINUTE=0;BYSECOND=0");
+
+    let dates = rrule_set
+        .all(1)
+        .dates;
+
+    common::check_occurrences(&dates, &["2020-11-01T01:00:00+00:00"]);
+}
+
 
 fn with_timezone<F: FnOnce()>(tz: &str, test: F) {
     // Save the current timezone to restore it later
