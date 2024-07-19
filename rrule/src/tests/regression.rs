@@ -374,6 +374,66 @@ fn issue_ignore_3rd_party_params() {
 }
 
 #[test]
+fn issue_support_fixed_timezone_offset_dates_with_iana_timezone_exdate() {
+    let dates = "DTSTART;TZID=GMT+0500:20201101T010000\n\
+    RDATE;TZID=GMT+0500:20201101T010000\n\
+    RRULE:FREQ=DAILY\n\
+    EXDATE;TZID=Etc/GMT-5:20201102T010000"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(2)
+        .dates;
+
+    common::check_occurrences(
+        &dates, 
+        &[
+            "2020-11-01T01:00:00+05:00", 
+            "2020-11-03T01:00:00+05:00"
+            ]
+    );
+}
+
+#[test]
+fn issue_support_fixed_iana_timezone_with_iana_timezone_exdate() {
+    let dates = "DTSTART;TZID=Etc/GMT-5:20201101T010000\n\
+    RDATE;TZID=Etc/GMT-5:20201101T010000\n\
+    RRULE:FREQ=DAILY\n\
+    EXDATE;TZID=Etc/GMT-5:20201102T010000"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(2)
+        .dates;
+
+    common::check_occurrences(
+        &dates, 
+        &[
+            "2020-11-01T01:00:00+05:00", 
+            "2020-11-03T01:00:00+05:00"
+            ]
+    );
+}
+
+#[test]
+fn issue_support_fixed_timezone_offset_dates_with_fixed_timezone_offset_exdate() {
+    let dates = "DTSTART;TZID=GMT+0500:20201101T010000\n\
+    RDATE;TZID=GMT+0500:20201101T010000\n\
+    RRULE:FREQ=DAILY\n\
+    EXDATE;TZID=GMT+0500:20201102T010000"
+        .parse::<RRuleSet>()
+        .unwrap()
+        .all(2)
+        .dates;
+
+    common::check_occurrences(
+        &dates, 
+        &[
+            "2020-11-01T01:00:00+05:00", 
+            "2020-11-03T01:00:00+05:00"
+            ]
+    );
+}
+
+#[test]
 fn fixed_offset_utc_tz() {
     let rrule_set = "DTSTART;TZID=UTC+0530:20201101T010000\nRRULE:FREQ=MONTHLY"
         .parse::<RRuleSet>()
