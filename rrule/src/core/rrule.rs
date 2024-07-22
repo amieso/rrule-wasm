@@ -525,6 +525,7 @@ impl RRule<Unvalidated> {
             self.by_week_no.clear();
         }
 
+        // Follow Google behavior for YEARLY frequency and BYMONTHDAY
         if self.freq == Frequency::Yearly {
             if self.by_month.is_empty() && !self.by_month_day.is_empty() {
                 let month = get_month(dt_start);
