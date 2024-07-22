@@ -525,6 +525,21 @@ impl RRule<Unvalidated> {
             self.by_week_no.clear();
         }
 
+        if self.freq == Frequency::Yearly {
+            if self.by_month.is_empty() && !self.by_month_day.is_empty() {
+                let month = get_month(dt_start);
+                self.by_month = vec![month];
+            } else if self.by_month_day.is_empty()
+                && self.by_n_month_day.is_empty()
+                && self.by_weekday.is_empty()
+                && self.by_year_day.is_empty()
+                && !self.by_month.is_empty()
+            {
+                let day = get_day(dt_start);
+                self.by_month_day = vec![day];
+            }
+        }
+
         // make sure all BYXXX are unique and sorted
         self.by_hour.sort_unstable();
         self.by_hour.dedup();
