@@ -35,6 +35,7 @@ impl std::fmt::Debug for Tz {
         match self {
             Self::Local(tz) => tz.fmt(f),
             Self::Tz(tz) => tz.fmt(f),
+            Self::FixedOffset(tz) => tz.fmt(f)
         }
     }
 }
@@ -44,6 +45,7 @@ impl std::fmt::Display for Tz {
         match self {
             Self::Local(_tz) => write!(f, "Local"),
             Self::Tz(tz) => tz.fmt(f),
+            Self::FixedOffset(tz) => tz.fmt(f),
         }
     }
 }
@@ -52,6 +54,7 @@ impl std::fmt::Display for Tz {
 pub enum RRuleOffset {
     Local(FixedOffset),
     Tz(<chrono_tz::Tz as TimeZone>::Offset),
+    FixedOffset(FixedOffset),
 }
 
 impl std::fmt::Debug for RRuleOffset {
@@ -59,6 +62,7 @@ impl std::fmt::Debug for RRuleOffset {
         match self {
             Self::Local(offset) => offset.fmt(f),
             Self::Tz(offset) => offset.fmt(f),
+            Self::FixedOffset(offset) => offset.fmt(f),
         }
     }
 }
@@ -68,6 +72,7 @@ impl std::fmt::Display for RRuleOffset {
         match self {
             Self::Local(offset) => offset.fmt(f),
             Self::Tz(offset) => offset.fmt(f),
+            Self::FixedOffset(offset) => offset.fmt(f),
         }
     }
 }
@@ -77,6 +82,7 @@ impl Offset for RRuleOffset {
         match self {
             Self::Local(tz) => tz.fix(),
             Self::Tz(tz) => tz.fix(),
+            Self::FixedOffset(tz) => tz.fix()
         }
     }
 }
@@ -88,6 +94,7 @@ impl TimeZone for Tz {
         match offset {
             RRuleOffset::Local(offset) => Self::Local(Local::from_offset(offset)),
             RRuleOffset::Tz(offset) => Self::Tz(chrono_tz::Tz::from_offset(offset)),
+            RRuleOffset::FixedOffset(offset) => Self::FixedOffset(FixedOffset::from_offset(offset)),
         }
     }
 
@@ -103,6 +110,9 @@ impl TimeZone for Tz {
             Self::Tz(tz) => tz
                 .from_local_date(local)
                 .map(|date| RRuleOffset::Tz(*date.offset())),
+            Self::FixedOffset(tz) => tz
+                .offset_from_local_date(local)
+                .map(|offset| RRuleOffset::FixedOffset(offset)),
         }
     }
 
@@ -117,6 +127,9 @@ impl TimeZone for Tz {
             Self::Tz(tz) => tz
                 .from_local_datetime(local)
                 .map(|date| RRuleOffset::Tz(*date.offset())),
+            Self::FixedOffset(tz) => tz
+                .offset_from_local_datetime(local)
+                .map(|offset| RRuleOffset::FixedOffset(offset)),
         }
     }
 
@@ -125,6 +138,7 @@ impl TimeZone for Tz {
         match self {
             Self::Local(tz) => RRuleOffset::Local(*tz.from_utc_date(utc).offset()),
             Self::Tz(tz) => RRuleOffset::Tz(*tz.from_utc_date(utc).offset()),
+            Self::FixedOffset(tz) => RRuleOffset::FixedOffset(*tz),
         }
     }
 
@@ -132,6 +146,7 @@ impl TimeZone for Tz {
         match self {
             Self::Local(tz) => RRuleOffset::Local(*tz.from_utc_datetime(utc).offset()),
             Self::Tz(tz) => RRuleOffset::Tz(*tz.from_utc_datetime(utc).offset()),
+            Self::FixedOffset(tz) => RRuleOffset::FixedOffset(*tz),
         }
     }
 }

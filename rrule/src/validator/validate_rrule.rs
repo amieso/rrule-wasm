@@ -76,6 +76,15 @@ fn validate_until(
                         });
                     }
                 }
+                Tz::FixedOffset(_) => {
+                    if until.timezone() != Tz::UTC {
+                        return Err(ValidationError::DtStartUntilMismatchTimezone {
+                            dt_start_tz: dt_start.timezone().name().into(),
+                            until_tz: until.timezone().name().into(),
+                            expected: vec!["UTC".into()],
+                        });
+                    }
+                }
             }
 
 // Below code was removed because we have cases where UNTIL is earlier than DTSTART.

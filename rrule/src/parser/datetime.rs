@@ -2,13 +2,21 @@ use std::str::FromStr;
 
 use super::{regex::ParsedDateString, ParseError};
 use crate::{core::Tz, NWeekday};
-use chrono::{NaiveDate, TimeZone, Weekday};
+use chrono::{NaiveDate, TimeZone, Weekday, FixedOffset};
 
 /// Attempts to convert a `str` to a `chrono_tz::Tz`.
 pub(crate) fn parse_timezone(tz: &str) -> Result<Tz, ParseError> {
-    chrono_tz::Tz::from_str(tz)
-        .map_err(|_| ParseError::InvalidTimezone(tz.into()))
-        .map(Tz::Tz)
+    if tz.len() > 3 && (tz.starts_with("GMT") || tz.starts_with("UTC")) {
+        let offset_str = &tz[3..]; // Remove "UTC"
+
+        FixedOffset::from_str(offset_str)
+            .map_err(|_| ParseError::InvalidTimezone(tz.into()))
+            .map(Tz::FixedOffset)
+    } else {
+        chrono_tz::Tz::from_str(tz)
+            .map_err(|_| ParseError::InvalidTimezone(tz.into()))
+            .map(Tz::Tz)
+    }
 }
 
 /// Convert a datetime string and a timezone to a `chrono::DateTime<Tz>`.
