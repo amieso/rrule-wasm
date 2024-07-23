@@ -625,7 +625,7 @@ fn yearly_by_monthday_and_weekday() {
 }
 
 #[test]
-fn yearly_by_monthday_and_weekday() {
+fn yearly_by_monthday_and_weekday_2() {
     let rrule_set = "DTSTART;TZID=Asia/Kolkata:20240420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=1,3;BYDAY=TU,TH;COUNT=5"
         .parse::<RRuleSet>()
         .unwrap();
