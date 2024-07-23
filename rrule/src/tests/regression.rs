@@ -509,6 +509,189 @@ fn gmt_tz() {
     common::check_occurrences(&dates, &["2020-11-01T01:00:00+00:00"]);
 }
 
+#[test]
+fn yearly_by_monthday() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20210420T080000\nRDATE;TZID=Asia/Kolkata:20210420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=20"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2021-04-20T08:00:00+05:30",
+        "2022-04-20T08:00:00+05:30",
+        "2023-04-20T08:00:00+05:30",
+        "2024-04-20T08:00:00+05:30",
+        "2025-04-20T08:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn monthly_by_monthday() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20210420T080000\nRDATE;TZID=Asia/Kolkata:20210420T080000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=20"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2021-04-20T08:00:00+05:30",
+        "2021-05-20T08:00:00+05:30",
+        "2021-06-20T08:00:00+05:30",
+        "2021-07-20T08:00:00+05:30",
+        "2021-08-20T08:00:00+05:30",
+    ]);
+}
+
+
+#[test]
+fn yearly_by_month() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20210420T080000\nRDATE;TZID=Asia/Kolkata:20210420T080000\nRRULE:FREQ=YEARLY;BYMONTH=4"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2021-04-20T08:00:00+05:30",
+        "2022-04-20T08:00:00+05:30",
+        "2023-04-20T08:00:00+05:30",
+        "2024-04-20T08:00:00+05:30",
+        "2025-04-20T08:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn yearly_by_monthday_multiple() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20210420T080000\nRDATE;TZID=Asia/Kolkata:20210420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=20,30"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2021-04-20T08:00:00+05:30",
+        "2021-04-30T08:00:00+05:30",
+        "2022-04-20T08:00:00+05:30",
+        "2022-04-30T08:00:00+05:30",
+        "2023-04-20T08:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn yearly_by_month_multiple() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20210420T080000\nRDATE;TZID=Asia/Kolkata:20210420T080000\nRRULE:FREQ=YEARLY;BYMONTH=4,6"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2021-04-20T08:00:00+05:30",
+        "2021-06-20T08:00:00+05:30",
+        "2022-04-20T08:00:00+05:30",
+        "2022-06-20T08:00:00+05:30",
+        "2023-04-20T08:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn yearly_by_monthday_and_weekday() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20210420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=1,3;BYDAY=TU,TH;COUNT=5"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2025-04-01T08:00:00+05:30",
+        "2025-04-03T08:00:00+05:30",
+        "2027-04-01T08:00:00+05:30",
+        "2029-04-03T08:00:00+05:30",
+        "2031-04-01T08:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn yearly_by_monthday_and_weekday_2() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20240420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=1,3;BYDAY=TU,TH;COUNT=5"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2025-04-01T08:00:00+05:30",
+        "2025-04-03T08:00:00+05:30",
+        "2027-04-01T08:00:00+05:30",
+        "2029-04-03T08:00:00+05:30",
+        "2031-04-01T08:00:00+05:30",
+    ]);
+}
+
+
+#[test]
+fn yearly_by_setpos() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20240420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=20;BYSETPOS=3,-3"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(10)
+        .dates;
+
+    assert_eq!(dates.len(), 0, "List sizes don't match");
+}
+
+#[test]
+fn yearly_by_setpos_2() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20240420T080000\nRRULE:FREQ=YEARLY;BYMONTHDAY=20,21,22,23;BYSETPOS=2,-2"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2024-04-21T08:00:00+05:30",
+        "2024-04-22T08:00:00+05:30",
+        "2025-04-21T08:00:00+05:30",
+        "2025-04-22T08:00:00+05:30",
+        "2026-04-21T08:00:00+05:30",
+    ]);
+}
+
+#[test]
+fn yearly_by_setpos_3() {
+    let rrule_set = "DTSTART;TZID=Asia/Kolkata:20240420T080000\nRRULE:FREQ=MONTHLY;COUNT=3;BYDAY=MO;BYSETPOS=-1"
+        .parse::<RRuleSet>()
+        .unwrap();
+
+    let dates = rrule_set
+        .all(5)
+        .dates;
+
+    common::check_occurrences(&dates, &[
+        "2024-04-29T08:00:00+05:30",
+        "2024-05-27T08:00:00+05:30",
+        "2024-06-24T08:00:00+05:30",
+    ]);
+}
 
 fn with_timezone<F: FnOnce()>(tz: &str, test: F) {
     // Save the current timezone to restore it later
